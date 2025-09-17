@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ice Cream Business Earnings Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .clear-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .clear-btn:hover {
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .daily-log {
+            background: #fff;
+            border-radius: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+        }
+
+        .log-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .log-entry {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .log-entry:hover {
+            background-color: #f8f9fa;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .day-info {
+            flex-grow: 1;
+        }
+
+        .day-number {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+
+        .day-conditions {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .earnings {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60;
+            text-align: right;
+        }
+
+        .condition-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin: 1px 2px;
+        }
+
+        .sunny { background: #f39c12; color: white; }
+        .rainy { background: #3498db; color: white; }
+        .power-out { background: #e74c3c; color: white; }
+        .exam-day { background: #9b59b6; color: white; }
+        .holiday { background: #e67e22; color: white; }
+        .weekend { background: #16a085; color: white; }
+        .hot-day { background: #e74c3c; color: white; }
+        .cool-day { background: #95a5a6; color: white; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 200px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍦 School Ice Cream Business</h1>
+        <p class="subtitle">Daily Earnings Simulator (25,000 - 60,000 UGX)</p>
+        
+        <div class="controls">
+            <button onclick="simulateDay()">Simulate One Day</button>
+            <button onclick="simulateWeek()">Simulate One Week</button>
+            <button onclick="simulateMonth()">Simulate One Month</button>
+            <button class="clear-btn" onclick="clearData()">Clear All Data</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalDays">0</div>
+                <div class="stat-label">Days Simulated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalEarnings">0</div>
+                <div class="stat-label">Total Earnings (UGX)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgEarnings">0</div>
+                <div class="stat-label">Average Daily (UGX)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="bestDay">0</div>
+                <div class="stat-label">Best Day (UGX)</div>
+            </div>
+        </div>
+
+        <div class="daily-log">
+            <div class="log-header">
+                📊 Daily Sales Log
+            </div>
+            <div id="logEntries">
+                <div style="padding: 40px; text-align: center; color: #7f8c8d;">
+                    Click "Simulate" to start generating daily earnings data
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let salesData = [];
+        let dayCounter = 1;
+
+        // Weather and condition probabilities (Kampala-based)
+        const conditions = {
+            weather: [
+                { type: 'sunny', probability: 0.4, multiplier: 1.2, icon: '☀️' },
+                { type: 'rainy', probability: 0.3, multiplier: 0.6, icon: '🌧️' },
+                { type: 'cloudy', probability: 0.3, multiplier: 1.0, icon: '☁️' }
+            ],
+            power: [
+                { type: 'power-out', probability: 0.15, multiplier: 0.4, icon: '⚡' },
+                { type: 'normal', probability: 0.85, multiplier: 1.0, icon: '' }
+            ],
+            special: [
+                { type: 'exam-day', probability: 0.1, multiplier: 0.7, icon: '📚' },
+                { type: 'holiday', probability: 0.05, multiplier: 1.5, icon: '🎉' },
+                { type: 'weekend', probability: 0.28, multiplier: 0.8, icon: '🏠' },
+                { type: 'normal', probability: 0.57, multiplier: 1.0, icon: '' }
+            ],
+            temperature: [
+                { type: 'hot-day', probability: 0.3, multiplier: 1.3, icon: '🌡️' },
+                { type: 'cool-day', probability: 0.2, multiplier: 0.9, icon: '❄️' },
+                { type: 'normal', probability: 0.5, multiplier: 1.0, icon: '' }
+            ]
+        };
+
+        function getRandomCondition(conditionArray) {
+            const random = Math.random();
+            let cumulative = 0;
+            
+            for (let condition of conditionArray) {
+                cumulative += condition.probability;
+                if (random <= cumulative) {
+                    return condition;
+                }
+            }
+            return conditionArray[conditionArray.length - 1];
+        }
+
+        function simulateDay() {
+            // Base earnings range
+            const baseEarnings = 25000 + Math.random() * 35000;
+            
+            // Get random conditions
+            const weather = getRandomCondition(conditions.weather);
+            const power = getRandomCondition(conditions.power);
+            const special = getRandomCondition(conditions.special);
+            const temperature = getRandomCondition(conditions.temperature);
+            
+            // Calculate final earnings with all multipliers
+            let finalEarnings = baseEarnings;
+            finalEarnings *= weather.multiplier;
+            finalEarnings *= power.multiplier;
+            finalEarnings *= special.multiplier;
+            finalEarnings *= temperature.multiplier;
+            
+            // Add some randomness for realism
+            finalEarnings *= (0.9 + Math.random() * 0.2);
+            
+            // Ensure it stays within reasonable bounds
+            finalEarnings = Math.max(15000, Math.min(70000, finalEarnings));
+            finalEarnings = Math.round(finalEarnings);
+            
+            // Create condition tags
+            const conditionTags = [];
+            if (weather.type !== 'cloudy') conditionTags.push({ type: weather.type, icon: weather.icon, name: weather.type });
+            if (power.type !== 'normal') conditionTags.push({ type: power.type, icon: power.icon, name: 'Power Outage' });
+            if (special.type !== 'normal') conditionTags.push({ type: special.type, icon: special.icon, name: special.type.replace('-', ' ') });
+            if (temperature.type !== 'normal') conditionTags.push({ type: temperature.type, icon: temperature.icon, name: temperature.type.replace('-', ' ') });
+            
+            if (conditionTags.length === 0) {
+                conditionTags.push({ type: 'normal', icon: '✅', name: 'Normal Day' });
+            }
+            
+            const dayData = {
+                day: dayCounter++,
+                earnings: finalEarnings,
+                conditions: conditionTags
+            };
+            
+            salesData.unshift(dayData);
+            updateDisplay();
+        }
+
+        function simulateWeek() {
+            for (let i = 0; i < 7; i++) {
+                simulateDay();
+            }
+        }
+
+        function simulateMonth() {
+            for (let i = 0; i < 30; i++) {
+                simulateDay();
+            }
+        }
+
+        function clearData() {
+            salesData = [];
+            dayCounter = 1;
+            updateDisplay();
+            
+            // Reset log to initial message
+            document.getElementById('logEntries').innerHTML = `
+                <div style="padding: 40px; text-align: center; color: #7f8c8d;">
+                    Click "Simulate" to start generating daily earnings data
+                </div>
+            `;
+        }
+
+        function updateDisplay() {
+            // Update stats
+            const totalDays = salesData.length;
+            const totalEarnings = salesData.reduce((sum, day) => sum + day.earnings, 0);
+            const avgEarnings = totalDays > 0 ? Math.round(totalEarnings / totalDays) : 0;
+            const bestDay = totalDays > 0 ? Math.max(...salesData.map(day => day.earnings)) : 0;
+            
+            document.getElementById('totalDays').textContent = totalDays;
+            document.getElementById('totalEarnings').textContent = totalEarnings.toLocaleString();
+            document.getElementById('avgEarnings').textContent = avgEarnings.toLocaleString();
+            document.getElementById('bestDay').textContent = bestDay.toLocaleString();
+            
+            // Update log
+            const logEntries = document.getElementById('logEntries');
+            if (totalDays > 0) {
+                logEntries.innerHTML = salesData.map(day => `
+                    <div class="log-entry">
+                        <div class="day-info">
+                            <div class="day-number">Day ${day.day}</div>
+                            <div class="day-conditions">
+                                ${day.conditions.map(condition => 
+                                    `<span class="condition-tag ${condition.type}">
+                                        ${condition.icon} ${condition.name}
+                                    </span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        <div class="earnings">${day.earnings.toLocaleString()} UGX</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
